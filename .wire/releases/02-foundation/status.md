@@ -66,6 +66,31 @@ training: not_applicable
 documentation: not_applicable
 ```
 
+## Linear Tracking
+
+```yaml
+linear:
+  team_id: RIT
+  project_id: d79396ec-2324-44bd-a54b-0a60b6e208d8
+  project_url: https://linear.app/rittman-analytics/project/ra-autopilot-test-0e3a53c420f5
+  artifacts:
+    requirements:
+      issue_id: RIT-145
+      issue_url: https://linear.app/rittman-analytics/issue/RIT-145
+    pipeline_design:
+      issue_id: RIT-146
+      issue_url: https://linear.app/rittman-analytics/issue/RIT-146
+    pipeline:
+      issue_id: RIT-147
+      issue_url: https://linear.app/rittman-analytics/issue/RIT-147
+    data_quality:
+      issue_id: RIT-148
+      issue_url: https://linear.app/rittman-analytics/issue/RIT-148
+    deployment:
+      issue_id: RIT-149
+      issue_url: https://linear.app/rittman-analytics/issue/RIT-149
+```
+
 ## Document Store
 
 ```yaml
