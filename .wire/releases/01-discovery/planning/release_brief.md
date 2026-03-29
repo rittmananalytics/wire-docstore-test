@@ -1,4 +1,5 @@
-# Release Brief: Core Dynamics Data Platform Build
+# Release Brief — data_platform_build
+## Core Dynamics, Inc.
 
 **Prepared by:** Wire Autopilot
 **Date:** 2026-03-29
@@ -8,178 +9,323 @@
 
 ---
 
-## 1. Executive Summary
+## 1. Overview
 
-This release brief formally authorises and defines the scope of the Core Dynamics data platform engagement delivered by Rittman Analytics. Over 22 weeks, Rittman Analytics will design, build, and hand over a production-grade Google Cloud data stack (BigQuery, Fivetran, Dataform, Cloud Composer, Looker) serving four analytics workstreams — Marketing, Product, Customer, and Operations — underpinned by a governed Looker semantic layer. The engagement is structured as six downstream delivery releases following this discovery sprint, with a total value of $250,000.
+This release brief defines the full delivery structure for the Core Dynamics data platform engagement. It maps the problem definition and pitch into six concrete releases, specifies their scope, sequencing, dependencies, success criteria, and team assignments. It is the authoritative reference for what will be built, in what order, and to what standard.
 
-The primary outcome is enabling Core Dynamics to progress toward its board-mandated NRR target of 115% within 18 months, through data-driven customer success, marketing optimisation, and product-led growth insights.
-
----
-
-## 2. Problem Being Solved
-
-Core Dynamics cannot make confident, data-driven decisions because:
-- Revenue metrics (MRR, NRR, CAC) differ by up to 8% between business functions
-- Customer health is assessed reactively using superficial ChurnZero scores that ignore product usage, support history, and financial signals
-- Marketing attribution is last-touch only — paid social channels are invisible in pipeline attribution
-- Product usage data is inaccessible to non-engineers
-- Operational metrics (SLA, infrastructure cost, incident response) are tracked in Google Sheets with weekly update cycles
-
-The full problem framing is documented in `.wire/releases/01-discovery/planning/problem_definition.md`.
+**Engagement goal:** Deliver a governed Google Cloud data platform that enables Core Dynamics to increase NRR from 104% to 115% within 18 months of engagement completion.
 
 ---
 
-## 3. Deliverables
+## 2. Release Structure
 
-| ID | Deliverable | Workstream | Phase | Acceptance Criteria |
+The engagement is structured as six delivery releases following an initial discovery sprint:
+
+| Release | Name | Type | Weeks | Primary Owner |
 |---|---|---|---|---|
-| D-01 | GCP project setup, IAM, and environment configuration | Foundation | 1 | GCP projects provisioned; IAM roles configured; required APIs enabled |
-| D-02 | Fivetran connector configuration (all 18 sources) | Foundation | 1–2 | All connectors sync with < 0.1% error rate over 7-day observation period |
-| D-03 | Dataform repository — staging models (all sources) | Foundation | 2 | All staging models pass not-null, uniqueness, and referential integrity assertions |
-| D-04 | Intermediate and warehouse models (all workstreams) | All | 2–3 | Row counts within ±1% of source; agreed business metrics within ±2% of Finance spreadsheets |
-| D-05 | Cloud Composer DAGs for orchestration | Foundation | 2 | DAGs complete successfully; Slack/email alerts fire on simulated failure |
-| D-06 | Data quality assertions + pipeline health dashboard | Foundation | 2 | Assertions pass for 3 consecutive daily runs; pipeline health dashboard live in Looker |
-| D-07 | Dashboard MA-01: Demand Generation Performance | Marketing | 3 | Rachel Summers + Owen Brady sign off in UAT |
-| D-08 | Dashboard MA-02: Multi-Touch Attribution Analysis | Marketing | 3 | 5 attribution models available; U-shaped default; Rachel Summers sign off |
-| D-09 | Dashboard MA-03: Pipeline Contribution Report | Marketing | 3 | Marketing-sourced vs. influenced pipeline split; executive sign off |
-| D-10 | Dashboard PB-01: Product Adoption Overview | Product | 3 | Feature hierarchy (Module/FeatureGroup/Feature) filterable; Claire Ashworth sign off |
-| D-11 | Dashboard PB-02: Account-Level Product Usage | Product | 3 | Per-account drill-through with product engagement score trend; CS sign off |
-| D-12 | Dashboard PB-03: Onboarding Funnel Analysis | Product | 3 | 8 onboarding steps visible; Julia Mercer + Tara Obinna sign off |
-| D-13 | BigQuery ML Churn Risk Model | Customer | 3 | AUC-ROC ≥ 0.75; precision ≥ 60% at 0.5 threshold; model card delivered |
-| D-14 | Dashboard CA-01: Customer Health Command Centre | Customer | 3 | Top 3 risk signals per account visible; Tara Obinna + Ben Tran sign off |
-| D-15 | Dashboard CA-02: CSM Book of Business (with RLS) | Customer | 3 | Row-level security by CSM; all CSMs sign off in UAT |
-| D-16 | Dashboard CA-03: CS Leadership Scorecard | Customer | 3 | NRR/GRR trend vs. target; Tara Obinna + David Park sign off |
-| D-17 | Looker Scheduled Alerts (churn risk, health drop) | Customer | 3 | 4 alert types configured; test alerts fire successfully via Slack |
-| D-18 | Dashboard DO-01: Support Operations SLA Tracker | Operations | 3 | 4-hour refresh; P1/P2/P3 SLA compliance visible; Carlos Vega + Harriet Drummond sign off |
-| D-19 | Dashboard DO-02: Infrastructure Cost & Efficiency | Operations | 3 | Cost per customer visible; GCP spend vs. budget gauge; Sean Murphy sign off |
-| D-20 | Dashboard DO-03: Incident Response & On-Call Health | Operations | 3 | MTTA/MTTR trend; on-call burden per engineer; Tobias Hecht sign off |
-| D-21 | LookML project with governed semantic layer | All | 2–3 | All governed metrics defined; Amara Diallo + workstream leads sign off on Metric Definitions document |
-| D-22 | Looker Actions (Salesforce task creation, QBR export) | Customer | 3 | "Flag for CSM Follow-up" creates Salesforce task; "Export QBR Data" generates Google Slides |
-| D-23 | Data Engineering Runbook | Foundation | 3 | Covers architecture, add-new-source process, dev→prod promotion, incident response |
-| D-24 | Semantic Layer Governance Guide | All | 3 | Covers LookML project structure, metric definitions, change governance process |
-| D-25 | Knowledge transfer sessions (×3) | All | 3 | 3 sessions delivered; Amara Diallo + team sign off |
-| D-26 | UAT sign-off documentation | All | 3 | All workstream sponsors sign UAT documents |
+| 01-discovery | Discovery Sprint | discovery | Wks 1–2 | Mark Rittman |
+| 02-foundation | Data Pipeline Foundation | pipeline_only | Wks 1–4 | Kofi Asante |
+| 03-marketing-analytics | Marketing Analytics | full_platform | Wks 5–9 | Sophie Tanner |
+| 04-product-analytics | Product Analytics | full_platform | Wks 8–13 | Sophie Tanner |
+| 05-customer-analytics | Customer Analytics | full_platform | Wks 10–16 | Sophie Tanner + Kofi Asante |
+| 06-operational-analytics | Operational Analytics | dbt_development | Wks 12–17 | Kofi Asante |
+| 07-semantic-layer-governance | Semantic Layer & Governance | dashboard_extension | Wks 15–22 | Irina Volkov |
+
+Releases 03–06 run partially in parallel (see Section 5: Timeline). Release 07 is the final phase — it runs UAT, knowledge transfer, and deployment across all workstreams.
 
 ---
 
-## 4. Downstream Releases
+## 3. Release Specifications
 
-The following delivery releases will be executed after this discovery sprint:
+### Release 02: Data Pipeline Foundation
+**Type:** pipeline_only
+**Duration:** Weeks 1–4 (20 business days)
+**Owner:** Kofi Asante (Data Engineer)
 
-| Release Name | Type | Scope Summary | Dependencies | Priority |
-|---|---|---|---|---|
-| 02-foundation | pipeline_only | GCP setup, all 18 Fivetran connectors, Dataform staging models, Cloud Composer DAGs, data quality framework | None | 1 |
-| 03-marketing-analytics | full_platform | Marketing warehouse models, multi-touch attribution (5 models), LookML marketing views/explores, 3 dashboards (MA-01, MA-02, MA-03) | 02-foundation complete | 2 |
-| 04-product-analytics | full_platform | Product warehouse models, engagement score, onboarding funnel, LookML product views/explores, 3 dashboards (PB-01, PB-02, PB-03) | 02-foundation complete | 2 |
-| 05-customer-analytics | full_platform | Customer 360 model, BigQuery ML churn risk, LookML customer views/explores, 3 dashboards + Looker Alerts + Looker Actions (CA-01 to CA-03, D-17, D-22) | 04-product-analytics complete | 3 |
-| 06-operational-analytics | dbt_development | Operations warehouse models, LookML operations views/explores, 3 dashboards (DO-01, DO-02, DO-03) | 02-foundation complete | 4 |
-| 07-semantic-layer-governance | dashboard_extension | Semantic layer audit, executive model (LTV:CAC), governance review, final documentation (D-23, D-24), 3 knowledge transfer sessions (D-25), UAT sign-off (D-26) | All upstream releases | 5 |
+**Scope:**
+- GCP project setup: BigQuery datasets (raw, staging, integration, warehouse, monitoring), IAM roles (data-engineers, analysts, looker-service-account, dataform-runner), Secret Manager, Cloud Logging
+- Fivetran connectors (16): Salesforce, HubSpot, Google Ads, LinkedIn Ads, Meta Ads, Outreach.io, Mixpanel, Intercom, Zendesk, NetSuite, PagerDuty, BambooHR, CoreFM PostgreSQL (CDC), Segment BigQuery Destination, GCP Billing Export
+- Custom Cloud Functions (2): ChurnZero API connector (daily, incremental, GCS watermark), Clearbit enrichment connector (HubSpot webhook trigger, Pub/Sub rate-limiting)
+- Dataform staging models (18 sources): all following `stg_<source>__<entity>` naming; PII pseudonymisation for CoreFM; BambooHR column blocklist
+- Shared dimensions: `dim_date`, `dim_account`, `dim_csm` (used by all downstream releases)
+- Cloud Composer 2 DAG: `core_dynamics_daily_pipeline` (nightly + intraday incremental)
+- Dataform assertions: not_null, unique, referential_integrity, row_count_threshold, business_sanity, freshness — on all staging and shared dimension models
+- Data quality monitoring dataset: `pipeline_run_log`, `assertion_results`
+
+**Artifacts:**
+- Requirements specification
+- Pipeline architecture design
+- Dataform staging SQL (all 18 sources)
+- Cloud Composer DAG code
+- Cloud Function source code (ChurnZero, Clearbit)
+- Deployment runbook (GCP setup, Fivetran configuration, Dataform repository)
+- Data quality test suite
+
+**Dependencies:**
+- GCP Owner/Editor roles provisioned by end of Week 1 (Core Dynamics: Priya Nair / Amara Diallo)
+- CoreFM PostgreSQL read replica accessible via Cloud SQL Auth Proxy (Core Dynamics: Amara Diallo — Week 1)
+- Legal sign-off from Diane Hooper on PII pseudonymisation approach (target: end of Week 2)
+- NetSuite integration role provisioned — expected 2–3 weeks; connector may ship in "pending" state
+- Fivetran Business Critical licence procured (Core Dynamics)
+- Looker Standard/Enterprise licence procured (30+ Standard + 5 Developer seats)
+
+**Success criteria:**
+- All 18 Fivetran/custom connectors active; < 0.1% error rate over 7-day observation period
+- All staging models running without errors; Dataform assertions passing for 3 consecutive daily runs
+- Cloud Composer DAG completing nightly without manual intervention
+- `dim_date`, `dim_account`, `dim_csm` populated and assertion-clean
+
+**Safety gate:** Pipeline activation requires explicit confirmation before any connector is switched to production mode.
 
 ---
 
-## 5. Out of Scope
+### Release 03: Marketing Analytics
+**Type:** full_platform
+**Duration:** Weeks 5–9 (partially overlapping with Release 04 from Week 8)
+**Owner:** Sophie Tanner (Sr Analytics Engineer) + Irina Volkov (Looker Developer)
 
-- Real-time streaming dashboards (sub-minute latency)
-- Data catalogue (Dataplex, Alation)
-- Predictive modelling beyond the churn risk model (expansion propensity, LTV prediction, lead scoring)
-- Source system configuration changes (Salesforce, HubSpot, Zendesk)
-- GDPR/CCPA compliance review or legal sign-off
-- Mobile or embedded analytics
-- Ongoing managed service post-engagement
+**Scope:**
+- Dataform integration models: `int__marketing_touches`, `int__campaign_performance`, `int__funnel_stage`
+- Dataform warehouse models: `fct_attribution_touches`, `fct_campaign_spend`, `fct_pipeline_influenced`, `dim_campaign`, `dim_channel`
+- 5-model multi-touch attribution: first-touch, last-touch, linear, time-decay, U-shaped (U-shaped is default; 180-day window)
+- Attribution join logic: HubSpot contact → Salesforce opportunity via email address match; 12% mismatch gap documented
+- SAL stage included in HubSpot funnel (between MQL and SQL per Rachel Summers' requirement)
+- LookML views: `marketing_touches`, `campaign_performance`, `attribution_comparison`
+- LookML explores: `marketing_attribution` (primary), `campaign_roi`
+- Governed metrics in LookML: `marketing_qualified_leads`, `cost_per_mql`, `pipeline_influenced_revenue`, `marketing_sourced_arr`, `roas_by_channel`
+- Looker dashboards (3):
+  - Campaign Performance Dashboard (spend, MQL, CAC by channel/campaign/period)
+  - Attribution Comparison Dashboard (all 5 models side-by-side; channel contribution)
+  - Pipeline Influence Dashboard (marketing-touched opportunities in pipeline; revenue attribution)
+
+**Dependencies:**
+- Release 02 staging models for Salesforce, HubSpot, Google Ads, LinkedIn Ads, Meta Ads, Outreach.io complete and assertion-clean
+- LookML project created (Irina Volkov, Week 5)
+- 12% contact mismatch documented and accepted by Rachel Summers (discovery open question R-01)
+- UTM parameter non-compliance flagged in dashboard; Niamh Collins to address going forward
+
+**Success criteria:**
+- All 5 attribution models returning results for the last 12 months of closed-won opportunities
+- U-shaped model is default in Looker Attribution Comparison Dashboard
+- LinkedIn and Meta channels visible in closed-won journeys (not zero)
+- `marketing_sourced_arr` and `roas_by_channel` return consistent results against Finance's figures (±5% tolerance)
 
 ---
 
-## 6. Timeline
+### Release 04: Product Analytics
+**Type:** full_platform
+**Duration:** Weeks 8–13 (overlaps Release 03 from Week 8, overlaps Release 05 from Week 10)
+**Owner:** Sophie Tanner (Sr Analytics Engineer) + Irina Volkov (Looker Developer)
 
-| Milestone | Description | Week | Amount |
+**Scope:**
+- Dataform integration models: `int__feature_usage`, `int__session_events`, `int__onboarding_steps`, `int__product_events__deduplicated` (Segment + Mixpanel deduplication)
+- Dataform warehouse models: `fct_feature_usage`, `fct_session_events`, `fct_onboarding_completion`, `dim_feature` (Module → Feature Group → Feature hierarchy), `dim_account_product_score`
+- Feature hierarchy from CoreFM PostgreSQL: Module → Feature Group → Feature (3 levels)
+- Daily engagement score: composite of DAU/MAU ratio, feature breadth, core activation, NPS trend, onboarding completion — weights to be signed off by Claire Ashworth + Tara Obinna (open question R-11)
+- 8-step onboarding checklist tracked in Intercom events
+- Licence utilisation: `contracted_user_seats` from Salesforce `User_Seats__c` field (field completeness to be confirmed by Amara Diallo)
+- LookML views: `feature_usage`, `product_engagement`, `onboarding_funnel`, `account_product_score`
+- LookML explores: `product_adoption` (primary), `onboarding`
+- Governed metrics: `dau_mau_ratio`, `feature_adoption_rate`, `onboarding_completion_rate`, `product_engagement_score`, `licence_utilisation_rate`
+- Looker dashboards (3):
+  - Feature Adoption Dashboard (module/feature group/feature level; filterable by account, segment, cohort)
+  - Account Health Score Dashboard (product engagement score breakdown per account; CSM-ready)
+  - Onboarding Funnel Dashboard (8-step completion rates; stuck accounts)
+
+**Dependencies:**
+- Release 02 staging models for CoreFM PostgreSQL, Mixpanel, Segment, Intercom complete
+- Legal sign-off from Diane Hooper (required before CoreFM staging models go live)
+- Leon Yip event-to-source mapping for Segment/Mixpanel deduplication (open question R-06)
+- Engagement score weights signed off by Claire Ashworth + Tara Obinna (open question R-11)
+- `User_Seats__c` field population rate confirmed by Amara Diallo
+
+**Success criteria:**
+- `dim_account_product_score` populated for all 312 active accounts
+- Feature hierarchy (Module → Feature Group → Feature) visible in Looker without engineer query
+- CS team can filter Feature Adoption Dashboard by account without Slack-to-engineering request
+- Onboarding funnel shows step-level drop-off for the last 6 cohorts
+
+---
+
+### Release 05: Customer Analytics
+**Type:** full_platform
+**Duration:** Weeks 10–16
+**Owner:** Sophie Tanner (Sr Analytics Engineer) + Kofi Asante (Data Engineer) + Irina Volkov (Looker Developer)
+
+**Scope:**
+- Dataform integration models: `int__customer_360`, `int__renewal_history`, `int__support_health`, `int__churn_signals`
+- Dataform warehouse models: `fct_renewal_outcomes`, `fct_support_interactions`, `dim_csm_assignment`, `mart_customer__churn_risk`
+- Customer 360: joins Salesforce (account, opportunity, contract), ChurnZero (health, NPS, activity), Zendesk (tickets, CSAT), product score (from Release 04)
+- BigQuery ML churn model: logistic regression; features = product engagement score, support escalation rate, NPS trend, DAU/MAU, days-since-last-login, DCP (days-to-contract-renewal), champion departure indicator; training data = 24 months (14 months ChurnZero + Salesforce opportunity proxy for pre-ChurnZero period)
+- Model performance targets: AUC-ROC ≥ 0.75, precision ≥ 60% at 0.5 threshold
+- Top-3 contributing signals per at-risk account (SHAP-equivalent feature importance in BQML)
+- Renewal probabilities for accounts due in next 180 days
+- LookML with row-level security (RLS): CSMs see only their assigned accounts; managers see full portfolio
+- LookML views: `customer_health`, `churn_risk`, `renewal_pipeline`, `csm_performance`
+- LookML explores: `customer_360` (primary), `churn_risk`
+- Governed metrics: `customer_health_score`, `churn_risk_score`, `renewal_probability`, `arr_at_risk`, `nrr`, `grr`, `net_arr_change`
+- Looker dashboards (3):
+  - Customer Health Command Centre (top at-risk accounts; top-3 signals per account; CSM-filtered)
+  - Renewal Pipeline Dashboard (accounts due in 180 days; risk tier; recommended action)
+  - NRR & Revenue Retention Dashboard (NRR/GRR trends; cohort analysis; expansion vs contraction)
+- Looker Alerts: weekly email digest to CSMs for accounts where churn risk score changes by > 10 points
+- Looker Action: one-click QBR Google Slides generation (account snapshot, health score, top risks, open tickets, renewal details)
+
+**Dependencies:**
+- Release 02 staging models for Salesforce, ChurnZero, Zendesk complete
+- Release 04 `dim_account_product_score` complete (product score is a churn model feature)
+- Tara Obinna acceptance of Salesforce opportunity proxy for BQML training data (open question R-03)
+- Google Slides API access configured for Looker Action
+- Looker Alerts email integration configured
+
+**Success criteria:**
+- BQML churn model in production; AUC-ROC ≥ 0.75; precision ≥ 60%
+- Customer Health Command Centre shows top-3 contributing signals per at-risk account
+- All 14 CSMs can access their account portfolio in Looker (RLS verified)
+- QBR Looker Action generates a populated Google Slides deck in < 5 minutes for any account
+- NRR, GRR, and net ARR change all return the same number as the Finance baseline (±2% tolerance)
+
+---
+
+### Release 06: Operational Analytics
+**Type:** dbt_development
+**Duration:** Weeks 12–17 (overlaps Release 05)
+**Owner:** Kofi Asante (Data Engineer) + Irina Volkov (Looker Developer)
+
+**Scope:**
+- Dataform integration models: `int__sla_events`, `int__infrastructure_cost`, `int__incident_metrics`
+- Dataform warehouse models: `fct_sla_compliance`, `fct_infrastructure_cost_daily`, `fct_incident_response`, `mart_ops__sla_summary`
+- SLA compliance: Zendesk ticket events → SLA policy → first-response and resolution time vs contractual SLA tiers; 4-hour refresh
+- Infrastructure cost allocation: GCP Billing Export → cost per project/service → mapped to customer via resource labels (subject to Sean Murphy label coverage audit)
+- Incident metrics: PagerDuty → MTTA (mean time to acknowledge), MTTR (mean time to resolve), on-call distribution by engineer, incident trend by severity
+- LookML views: `sla_compliance`, `infrastructure_cost`, `incident_response`
+- LookML explores: `operational_health`
+- Governed metrics: `sla_compliance_rate`, `avg_first_response_time`, `avg_resolution_time`, `cost_per_customer_monthly`, `mtta`, `mttr`
+- Looker dashboards (3):
+  - Support SLA Tracker (SLA compliance rate by tier; breach risk; intraday refresh)
+  - Infrastructure Cost & Efficiency (GCP cost per customer; MoM trend; cost-per-seat)
+  - Incident Response Dashboard (MTTA/MTTR trends; on-call burden; severity breakdown)
+
+**Dependencies:**
+- Release 02 staging models for Zendesk, PagerDuty, GCP Billing complete
+- Sean Murphy GCP Billing label coverage audit complete (open question R-05)
+- SLA tier definitions from Carlos Vega (support contract tiers)
+
+**Success criteria:**
+- SLA Tracker refreshes every 4 hours without manual trigger
+- Infrastructure cost dashboard shows per-customer allocation with > 80% label coverage
+- MTTA/MTTR calculated correctly against PagerDuty incident data; values consistent with what Carlos Vega currently tracks manually
+
+---
+
+### Release 07: Semantic Layer Governance
+**Type:** dashboard_extension
+**Duration:** Weeks 15–22 (final phase; overlaps Releases 05 and 06)
+**Owner:** Irina Volkov (Looker Developer) + Mark Rittman (Engagement Lead)
+
+**Scope:**
+- Semantic layer audit: review all LookML views, explores, and measures across Releases 03–06; identify redundant measures, inconsistent naming, missing descriptions
+- Governance guide: LookML naming conventions, measure definition standards, field certification workflow, access control matrix
+- Metric certification: MRR, NRR, GRR, CAC, ARR — signed off by all workstream sponsors
+- UAT: 2-hour sessions with Rachel Summers, Claire Ashworth, Tara Obinna, Harriet Drummond; issues logged and resolved
+- Knowledge transfer sessions (3):
+  - Session 1 (Wk 18): Data engineering runbook (Fivetran, Cloud Composer, Dataform); for Amara Diallo and Kofi Asante
+  - Session 2 (Wk 20): Looker governance and LookML development; for Amara Diallo and future LookML developers
+  - Session 3 (Wk 21): Dashboard usage and Looker Actions; for CS, Marketing, Product workstream leads and CSMs
+- Documentation: data engineering runbook, semantic layer governance guide, dashboard user guide (per workstream)
+- Production deployment: final Dataform release, Looker content folders, user provisioning (30+ Standard seats, 5 Developer seats)
+
+**Dependencies:**
+- All delivery releases (03–06) UAT-ready
+- All workstream sponsors available for 2-hour UAT sessions (Weeks 17–19)
+- Google Cloud production access confirmed for final deployment
+- Looker user list from Ben Tran (CS Ops) and Daniel Osei (PM)
+
+**Success criteria:**
+- All governed metrics (MRR, NRR, GRR, CAC) return the same figure across every dashboard (±2% tolerance)
+- UAT sign-off received from all 4 workstream sponsors
+- 3 KT sessions delivered; attendance confirmed for all required participants
+- Data engineering runbook covers all 18 connectors, Dataform release process, and Composer DAG restart procedures
+- All 30+ Standard users provisioned; Looker welcome email sent
+
+---
+
+## 4. Team and Responsibilities
+
+| Team Member | Role | Primary Releases |
+|---|---|---|
+| Mark Rittman | Engagement Lead | All releases (oversight), 01-discovery, 07-governance |
+| Sophie Tanner | Sr Analytics Engineer | 03-marketing-analytics, 04-product-analytics, 05-customer-analytics |
+| Kofi Asante | Data Engineer | 02-foundation, 05-customer-analytics, 06-operational-analytics |
+| Irina Volkov | Looker Developer | 03-marketing-analytics, 04-product-analytics, 05-customer-analytics, 06-operational-analytics, 07-governance |
+| Daniel Osei | Project Manager | All releases (tracking, client communication, risk log) |
+
+**Client contacts by release:**
+
+| Release | Client Lead | Client Reviewer |
+|---|---|---|
+| 02-foundation | Amara Diallo | Priya Nair |
+| 03-marketing-analytics | Rachel Summers | Owen Brady |
+| 04-product-analytics | Claire Ashworth | Leon Yip |
+| 05-customer-analytics | Tara Obinna | Ben Tran |
+| 06-operational-analytics | Harriet Drummond | Carlos Vega / Sean Murphy |
+| 07-governance | All workstream sponsors | Marcus Elwood (final sign-off) |
+
+---
+
+## 5. Timeline
+
+```
+Week:   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22
+01-discovery [==]
+02-foundation    [========]
+03-marketing                  [=============]
+04-product               [====================]
+05-customer                         [=================]
+06-operations                            [===========]
+07-governance                                      [=================]
+```
+
+**Phase 1** (Wks 1–4): Foundation + Discovery
+**Phase 2** (Wks 5–14): All four analytics workstreams (overlapping)
+**Phase 3** (Wks 15–22): Governance, UAT, KT, deployment
+
+---
+
+## 6. Risks and Mitigations
+
+| Risk | Probability | Impact | Mitigation |
 |---|---|---|---|
-| M1 | Contract signature | — | $42,500 |
-| M2 | Phase 1 complete — all raw data in BigQuery | End Wk 4 | $42,500 |
-| M3 | Phase 2 complete — all warehouse models signed off | End Wk 14 | $55,000 |
-| M4 | Phase 3 — Marketing & Product dashboards signed off (D-07 to D-12) | End Wk 17 | $42,500 |
-| M5 | Phase 3 — Customer & Operations dashboards signed off (D-13 to D-20) | End Wk 20 | $42,500 |
-| M6 | Final sign-off, documentation, and knowledge transfer | End Wk 22 | $25,000 |
-| **Total** | | | **$250,000** |
-
-**Estimated duration:** 22 weeks from kickoff (2 February 2026).
-**Estimated completion:** Week of 5 July 2026.
+| GCP access delayed past Week 1 | Medium | High | Escalate to Priya Nair (CTO); no Release 02 work can begin without GCP access |
+| CoreFM PostgreSQL access delayed | Medium | High | Release 02 ships without CoreFM connector active; Release 04 Product Analytics timeline slides |
+| NetSuite provisioning > 3 weeks | Medium | Medium | NetSuite connector ships in "pending" state; operational finance metrics flagged as incomplete |
+| Legal sign-off (Diane Hooper) delayed | Low | High | CoreFM staging models not deployed until sign-off received; product data blocked |
+| Segment/Mixpanel deduplication mapping late | Medium | Medium | Release 04 ships with deduplication caveat; CSMs informed that product metrics may be slightly overstated |
+| BQML precision < 60% target | Low | Medium | Tune classification threshold; relax to 55% with sponsor sign-off; document clearly |
+| UAT issues identified in Wk 17–19 | Medium | Medium | Buffer weeks 20–22 provide remediation time; critical issues only are scope for closure |
 
 ---
 
-## 7. Budget
+## 7. Open Items Requiring Client Action
 
-**Total engagement value:** $250,000 USD (fixed price)
-**Standard day rate (out-of-scope work):** $2,200/day
-**Expenses:** Travel billed at cost + 10% handling fee; prior written approval required
-**Payment terms:** Net-30 from invoice date on milestone completion
-
----
-
-## 8. Assumptions and Dependencies
-
-1. GCP Owner/Editor access provisioned by end of Week 1 (Amara Diallo, pre-approved by Priya Nair)
-2. Fivetran Business Critical account with sufficient MAR procured by Core Dynamics
-3. Looker Standard/Enterprise licence with 30+ Standard + 5 Developer user seats procured by Core Dynamics
-4. All API credentials and OAuth tokens provided within 5 business days of written request
-5. CoreFM PostgreSQL network access (Cloud SQL Auth Proxy) provisioned before Phase 2 start
-6. Workstream sponsors available for 1-hour requirements review (Week 1) and 2-hour UAT session (Phase 3)
-7. Minimum 24 months historical renewal data available; Salesforce opportunity data will supplement ChurnZero history
-8. Rittman Analytics surfaces data quality issues but does not cleanse upstream source data
-9. Salesforce-HubSpot bidirectional sync functioning with consistent Contact.Id fields
+| Item | Owner | Required By |
+|---|---|---|
+| GCP Owner/Editor role provisioning | Priya Nair / Amara Diallo | End of Week 1 |
+| CoreFM PostgreSQL read replica + Cloud SQL Auth Proxy | Amara Diallo | End of Week 1 |
+| Fivetran Business Critical licence procurement | Amara Diallo | End of Week 1 |
+| Looker licence procurement (30+ Standard, 5 Developer) | Amara Diallo | End of Week 2 |
+| Legal sign-off on PII pseudonymisation (Diane Hooper) | Mark Rittman to coordinate | End of Week 2 |
+| NetSuite integration role provisioning | Amara Diallo | Week 1 (ASAP — 2–3 week lead time) |
+| Salesforce-HubSpot contact deduplication decision (R-01) | Rachel Summers | Before Release 03 kickoff (Week 5) |
+| BQML training data proxy acceptance (R-03) | Tara Obinna | Before Release 05 kickoff (Week 10) |
+| Product engagement score weight sign-off (R-11) | Claire Ashworth + Tara Obinna | Before Release 04 model build (Week 9) |
+| GCP Billing label coverage audit (R-05) | Sean Murphy | Before Release 06 kickoff (Week 12) |
+| Segment/Mixpanel event-to-source mapping (R-06) | Leon Yip | Before Release 04 int model build (Week 10) |
+| `User_Seats__c` field population rate confirmation | Amara Diallo | Before Release 04 model build (Week 9) |
+| SLA tier definitions | Carlos Vega | Before Release 06 kickoff (Week 12) |
 
 ---
 
-## 9. Risks
-
-| ID | Risk | Impact | Mitigation |
-|---|---|---|---|
-| R-01 | Salesforce-HubSpot 12% contact mismatch reduces attribution coverage | High | Fuzzy matching at staging layer; document coverage gap |
-| R-03 | ChurnZero only 14 months history (vs. 24 months required for BQML) | High | Salesforce opportunity data as proxy; model card documents limitation |
-| R-05 | GCP Billing label coverage unknown — may limit cost-per-customer dashboard | High | Sean Murphy to provide label audit; scope DO-02 appropriately |
-| R-07 | CoreFM PostgreSQL network access not yet provisioned | High | Kofi + Sean to agree Cloud SQL Auth Proxy config; required before Phase 2 |
-| R-08 | NetSuite integration role creation can take 2–3 weeks | Medium | Process started immediately; Priya Nair actioned |
-| R-10 | PII pseudonymisation requires legal sign-off before implementation | Medium | Diane Hooper introduced; target sign-off by end of Week 2 |
-
----
-
-## 10. Governance
-
-**Engagement Lead (RA):** Mark Rittman
-**Primary Technical Contact (client):** Amara Diallo
-**Executive Sponsor (client):** Priya Nair
-
-**Metric Definitions sign-off:** Each workstream sponsor signs off on the metric definitions affecting their domain before those models are promoted to the warehouse layer.
-
-**Change management:** Any work outside this SoW requires written approval before proceeding. Rittman Analytics will raise change requests promptly. Standard day rate: $2,200/day.
-
-**Status reporting:** Weekly status report circulated by Daniel Osei every Monday.
-
----
-
-## 11. Acceptance Criteria Summary
-
-| Deliverable Category | Criterion |
-|---|---|
-| Data Pipelines (D-02 to D-05) | < 0.1% Fivetran error rate over 7 days; Dataform assertions pass 3 consecutive runs; Cloud Composer DAGs complete successfully |
-| Warehouse Models (D-04) | PK uniqueness and not-null tests pass; row counts ±1% of source; key metrics ±2% of Finance spreadsheets |
-| BQML Churn Model (D-13) | AUC-ROC ≥ 0.75; precision ≥ 60% at 0.5 threshold; model card reviewed and signed off by Tara Obinna |
-| Dashboards (D-07 to D-20) | All tiles load within 10 seconds; data matches agreed metric definitions; workstream sponsor UAT sign-off |
-| LookML Semantic Layer (D-21) | Content validation passes; all governed metrics return consistent values across dashboards |
-| Documentation (D-23, D-24) | Reviewed and accepted by Amara Diallo |
-| Knowledge Transfer (D-25) | 3 sessions delivered; participant feedback collected |
-
----
-
-## 12. Sign-off
-
-| Role | Name | Signature | Date |
-|---|---|---|---|
-| Engagement Lead (RA) | Mark Rittman | [Signature required before sprint plan] | — |
-| Executive Sponsor (client) | Priya Nair | [Signature required before sprint plan] | — |
-| Primary Technical Contact (client) | Amara Diallo | [Signature required before sprint plan] | — |
-
----
-
-*Document status: Generated by Wire Autopilot — self-reviewed and approved*
+*Document status: Generated by Wire Autopilot — validated and self-approved*
 *Reviewed by: Wire Autopilot (self-review)*
-*Date: 2026-03-29*
+*Review date: 2026-03-29*

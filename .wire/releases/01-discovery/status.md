@@ -57,11 +57,35 @@ docstore:
     space_key: WAEE
     parent_page_id: "3367665668"
     parent_page_url: https://rittmananalytics.atlassian.net/wiki/spaces/WAEE/pages/3367665668/Core+Dynamics+data_platform_build+Wire+Documents
-    artifacts: {}
+    artifacts:
+      problem_definition:
+        page_id: "3367862278"
+        page_url: https://rittmananalytics.atlassian.net/wiki/spaces/WAEE/pages/3367862278/Problem+Definition+Core+Dynamics+data_platform_build
+      pitch:
+        page_id: "3367862300"
+        page_url: https://rittmananalytics.atlassian.net/wiki/spaces/WAEE/pages/3367862300/Pitch+Core+Dynamics+data_platform_build
+      release_brief:
+        page_id: "3367600143"
+        page_url: https://rittmananalytics.atlassian.net/wiki/spaces/WAEE/pages/3367600143/Release+Brief+Core+Dynamics+data_platform_build
+      sprint_plan:
+        page_id: "3366551565"
+        page_url: https://rittmananalytics.atlassian.net/wiki/spaces/WAEE/pages/3366551565/Sprint+Plan+Core+Dynamics+data_platform_build
   notion:
     parent_page_id: 3329ce3e-29d6-81f8-8340-f717a111dd0b
     parent_page_url: https://www.notion.so/3329ce3e29d681f88340f717a111dd0b
-    artifacts: {}
+    artifacts:
+      problem_definition:
+        page_id: 3329ce3e-29d6-8154-9c90-caa878d8f027
+        page_url: https://www.notion.so/3329ce3e29d681549c90caa878d8f027
+      pitch:
+        page_id: 3329ce3e-29d6-81cc-8fe1-e2265f4d143b
+        page_url: https://www.notion.so/3329ce3e29d681cc8fe1e2265f4d143b
+      release_brief:
+        page_id: 3329ce3e-29d6-8129-bd64-cd3771c347ab
+        page_url: https://www.notion.so/3329ce3e29d68129bd64cd3771c347ab
+      sprint_plan:
+        page_id: 3329ce3e-29d6-81d8-bc4e-cab2de5416c4
+        page_url: https://www.notion.so/3329ce3e29d681d8bc4ecab2de5416c4
 ```
 
 ## Linear Tracking

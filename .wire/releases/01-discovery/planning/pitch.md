@@ -1,149 +1,158 @@
-# Pitch: Core Dynamics Data Platform Build
+# Pitch — data_platform_build
+## Core Dynamics, Inc.
 
 **Prepared by:** Wire Autopilot
 **Date:** 2026-03-29
 **Engagement:** data_platform_build
 **Client:** Core Dynamics, Inc.
+**Engagement Reference:** RA-2026-0041
 
 ---
 
-## 1. Problem Statement
+## 1. Problem
 
-Core Dynamics is a Series C B2B SaaS company ($38.4M ARR, 312 accounts) with a board target of NRR 115% within 18 months. That target cannot be achieved through gut feel. The company needs to know, in real time, which customers are at churn risk, which marketing investments generate pipeline, and which product features drive retention. Today, none of those questions can be answered reliably.
+Core Dynamics has a board mandate — grow NRR from 104% to 115% in 18 months — and no data infrastructure capable of supporting it.
 
-Data exists — across Salesforce, HubSpot, ChurnZero, Mixpanel, CoreFM PostgreSQL, Zendesk, NetSuite, PagerDuty, and a dozen more systems — but it is fragmented, manually reconciled, and inconsistent. MRR differs by 8% between Sales, Finance, and CS. The single analyst spends 60% of his time on VLOOKUP reconciliations. The CS team identifies churn after customers say no. Marketing can't see LinkedIn's contribution to pipeline. Product usage data is inaccessible without an engineer.
+The CS team cannot see churn risk proactively. The marketing team cannot prove which spend generates revenue. The product team cannot see which features are used by which accounts. Finance cannot reconcile MRR figures across functions. Operations tracks SLA compliance in a Google Sheet updated once a week. All of this is a data problem: 18 source systems, zero governed integration, one analyst (James Petit) manually reconciling CSV exports to paper over the gaps.
 
-The solution is a unified, governed data platform on Google Cloud — not a marginal improvement to the current situation, but a complete replacement of manual data workflows with an automated, trustworthy stack that every business function can use self-service.
+The human cost is measurable: 60% of James Petit's working time on manual data work. A $340K ARR churn event (Meridian Healthcare) with visible leading indicators that no one joined together in time. 14 CSMs spending 3–5 hours per QBR pulling data from four systems. Marketing unable to defend a $2.1M budget to the board because LinkedIn attribution is invisible.
+
+Without a data platform that centralises, governs, and activates this data, Core Dynamics cannot make the decisions its NRR target requires.
 
 ---
 
 ## 2. Appetite
 
-**Big batch — 22 weeks**
+**22 weeks. $250,000 fixed price. Five-person Rittman Analytics team.**
 
-This is a substantial, multi-workstream engagement covering infrastructure, four analytics domains, a governed semantic layer, and a BigQuery ML model. A 6-week small-batch scope would not be sufficient to deliver the integrated foundation that makes the individual analytics workstreams valuable. The 22-week timeline in the SOW is the right container.
+This is the full scope of the engagement. The timeline is fixed by the SOW — Phase 1 (Foundation, Wks 1–4), Phase 2 (Data Modelling & Semantic Layer, Wks 5–14), Phase 3 (Dashboards, UAT, Deployment, Wks 15–22).
 
-**Budget: $250,000**
-
-At $2,200/day, this represents approximately 114 consultant-days across the full team (Engagement Lead, Senior Analytics Engineer, Data Engineer, Looker Developer, Project Manager). This is a fixed-price engagement with defined milestones.
+We are not building a general-purpose data platform. We are building exactly what Core Dynamics needs to move NRR from 104% to 115% — no more, no less. Every delivery decision is subject to the 22-week, $250K constraint.
 
 ---
 
-## 3. Appetite Statement
+## 3. Solution
 
-We have 22 weeks and $250K to build a production-grade Google Cloud data platform for Core Dynamics. Within that budget, we will deliver the foundation (GCP, Fivetran, Dataform), four analytics workstreams (Marketing, Product, Customer, Operations), a governed Looker semantic layer, and a BigQuery ML churn risk model. We will not build a data catalogue, embedded analytics, or real-time streaming infrastructure — those are future phases. Every delivery decision will be tested against this appetite before scope is added.
+### The Shaped Approach
 
----
+Build a Google Cloud ELT data platform — BigQuery as the warehouse, Fivetran for ingestion, Dataform for transformation, Cloud Composer for orchestration, Looker for the semantic layer and dashboards — that answers the five questions Core Dynamics currently cannot answer:
 
-## 4. Solution
+1. **Which accounts are at risk of churning?** (Customer Analytics)
+2. **Which marketing spend generates revenue?** (Marketing Analytics)
+3. **Which product features drive retention?** (Product Analytics)
+4. **Are we meeting SLA commitments, and what is infrastructure costing per customer?** (Operational Analytics)
+5. **What is our single, agreed MRR/NRR/CAC?** (Governed Semantic Layer)
 
-The shaped solution is a **three-layer Google Cloud data stack** with a governed semantic layer serving purpose-built dashboards.
+### Architecture in Brief
 
-**Layer 1 — Foundation (Phase 1, Weeks 1–4):**
-Fivetran ingests all 18 source systems into BigQuery raw datasets. Cloud Composer orchestrates sync schedules. A custom Cloud Function handles ChurnZero (no native Fivetran connector) and Clearbit enrichment. CoreFM PostgreSQL is connected via Fivetran log-based CDC + Cloud SQL Auth Proxy. All staging models are built in Dataform with column-level documentation, type casting, and PII pseudonymisation (user_id hashed at staging layer for CoreFM data, pending Diane Hooper's legal sign-off).
+```
+18 Source Systems
+    ↓
+Fivetran (16 standard connectors) + Cloud Functions (ChurnZero, Clearbit)
+    ↓
+BigQuery Raw Datasets (raw_salesforce, raw_hubspot, raw_corefm_db, ...)
+    ↓
+Dataform Staging → Integration → Warehouse (mart_marketing, mart_product,
+mart_customer, mart_ops, shared dimensions)
+    ↓
+Looker LookML Semantic Layer (governed metrics, RLS, 10 dashboards)
+```
 
-**Layer 2 — Transformation (Phase 2, Weeks 5–14):**
-Dataform builds a four-workstream warehouse:
-- **Marketing mart**: `fct_lead_funnel_events`, `fct_campaign_spend`, `fct_attribution_touches`, `fct_opportunity_attribution` (5 attribution models: first-touch, last-touch, linear, time-decay, U-shaped; U-shaped as default). SAL stage added to funnel. 180-day marketing-influenced attribution window.
-- **Product mart**: `fct_feature_usage` (Module/FeatureGroup/Feature hierarchy), `dim_account_product_score` (composite engagement score with licence_utilisation_pct), `fct_onboarding_funnel` (8 Intercom steps).
-- **Customer mart**: `dim_account_health` (combining product, support, sentiment, financial signals), `fct_renewal_pipeline`, `fct_expansion_signals`. BigQuery ML logistic regression churn risk model trained on 24 months of renewal outcomes (using Salesforce opportunity data as proxy for pre-ChurnZero period).
-- **Operations mart**: `fct_support_tickets` (Zendesk SLA timers), `fct_incident_response` (PagerDuty MTTA/MTTR), `fct_infra_cost_by_customer` (GCP Billing allocated by label).
+Cloud Composer 2 orchestrates the full pipeline (nightly full refresh + intraday incremental for high-priority sources). BigQuery ML logistic regression provides churn risk scores. A Looker Action generates one-click QBR Google Slides decks.
 
-Shared dimensions: `dim_date` (fiscal calendar starting 1 Feb), `dim_account` (master account joining Salesforce, ChurnZero, product score), `dim_csm`.
+### Deliverables by Release
 
-**Layer 3 — Semantic Layer & Dashboards (Phase 3, Weeks 15–22):**
-LookML project (`core_dynamics_looker/`) with 5 models (marketing, product, customer, operations, executive), governed metric definitions (MRR, NRR, GRR, CAC, LTV, LTV:CAC, Product Engagement Score, Churn Risk Probability, SLA Compliance Rate), row-level security for CSM dashboards, and 10 purpose-built dashboards.
-
-**Looker Actions:** "Flag for CSM Follow-up" → Salesforce task creation. "Export QBR Data" → pre-populated Google Slides deck.
-
-**Looker Alerts:** Health score drops 15+ points in 7 days; account enters "At Risk" band; renewal 60 days out with < 70% probability; new Sev 1/2 ticket on at-risk account.
-
-**Fat-marker verdict:** Foundation is complete and stable before workstream builds begin. Workstreams run in dependency order (Marketing/Product in parallel first, then Customer which depends on Product, then Operations). Semantic layer built incrementally alongside each workstream. Final governance audit in Week 21.
-
----
-
-## 5. Rabbit Holes
-
-1. **Salesforce-HubSpot contact deduplication.** The 12% mismatch rate will reduce attribution coverage but not block delivery. Implementing fuzzy matching at the staging layer (if required) is scoped. A full Salesforce data cleanup is explicitly out of scope and a client responsibility.
-
-2. **ChurnZero historical data gap.** With only 14 months of ChurnZero data, the BQML model will use Salesforce opportunity data as a proxy for the pre-ChurnZero period. We will not delay the model to wait for more ChurnZero history to accumulate.
-
-3. **GCP Billing label completeness.** Infrastructure cost-per-customer (DO-02) depends on GCP resource labels mapping to customers. If label coverage is low, the dashboard will show a partial view — we will document the gap rather than retrospectively relabelling resources.
-
-4. **CoreFM PostgreSQL schema complexity.** The operational DB has PII and a complex schema. We will pseudonymise at staging (one-way hash on user_id) and build product marts on account_id as the join key. We will not attempt to reverse-engineer undocumented schema relationships without Amara Diallo's input.
-
-5. **BigQuery ML model accuracy expectations.** We target AUC-ROC ≥ 0.75 and precision ≥ 60% at 0.5 threshold. If the reduced training window (14 months ChurnZero + Salesforce proxy) means we cannot hit this target, we will document the limitation in the model card and set realistic expectations with Tara Obinna — not inflate reported accuracy.
-
----
-
-## 6. No-Gos
-
-- **No real-time streaming dashboards.** Sub-minute latency is out of scope. Minimum refresh is 4 hours (Support SLA dashboard).
-- **No data catalogue** (Dataplex, Alation). Future phase.
-- **No predictive models beyond churn risk.** Expansion propensity, LTV prediction, lead scoring: not in scope.
-- **No source system modifications.** Salesforce, HubSpot, Zendesk schemas and workflows will not be changed.
-- **No GDPR/CCPA compliance review.** PII pseudonymisation implemented; legal sign-off is the client's responsibility.
-- **No mobile or embedded analytics.** Looker web application only.
-- **No ongoing managed service.** Build and handover only. Post-engagement retainer is a separate commercial conversation.
-- **No additional training** beyond the 3 knowledge transfer sessions in the deliverables.
-
----
-
-## 7. Open Questions
-
-1. **Salesforce data cleanup (R-01):** Will Core Dynamics run a Salesforce contact deduplication sprint to reduce the 12% HubSpot-Salesforce mismatch, or accept the attribution coverage gap?
-
-2. **Product engagement score weighting (R-11):** Have the revised signal weights been agreed by both Claire Ashworth and Tara Obinna? This must be signed off before the `dim_account_product_score` model is built.
-
-3. **Segment/Mixpanel deduplication (R-06):** Leon Yip to provide event-to-source mapping to enable deduplication at the staging layer. When will this be available?
-
-4. **GCP Billing label coverage (R-05):** Sean Murphy to provide label coverage audit. Without this, the scope of DO-02 (Infrastructure Cost & Efficiency dashboard) cannot be finalised.
-
-5. **Legal sign-off on PII pseudonymisation (R-10):** Priya Nair to introduce Diane Hooper. Target sign-off by end of Week 2. What is the confirmed timeline?
-
----
-
-## 8. Downstream Releases
-
-Based on the SOW phasing and the complexity of each workstream, the following delivery releases are proposed:
-
-| Release Name | Type | Scope Summary | Priority |
-|---|---|---|---|
-| 02-foundation | pipeline_only | GCP setup, Fivetran connectors, Dataform staging models, Cloud Composer orchestration, data quality framework | 1 |
-| 03-marketing-analytics | full_platform | Marketing data model, multi-touch attribution, LookML marketing views, 3 dashboards (MA-01, MA-02, MA-03) | 2 |
-| 04-product-analytics | full_platform | Product data model, engagement score, onboarding funnel, LookML product views, 3 dashboards (PB-01, PB-02, PB-03) | 2 |
-| 05-customer-analytics | full_platform | Customer 360, BigQuery ML churn model, LookML customer views, 3 dashboards + alerts (CA-01, CA-02, CA-03), Looker Actions | 3 |
-| 06-operational-analytics | dbt_development | Operations data model, LookML operations views, 3 dashboards (DO-01, DO-02, DO-03) | 4 |
-| 07-semantic-layer-governance | dashboard_extension | Semantic layer audit, LookML governance review, executive dashboard, Looker Actions, documentation & training | 5 |
-
-**Dependency order:** 02-foundation must complete before any analytics workstream begins. 05-customer-analytics depends on 04-product-analytics (product engagement score feeds customer health). 03-marketing-analytics and 04-product-analytics can run in parallel. 06-operational-analytics is partially parallelisable with 05. 07-semantic-layer-governance runs last.
-
----
-
-## 9. Betting Table Case
-
-- Core Dynamics has a $250K budget committed and a clear board mandate (NRR 115% in 18 months) — the commercial case for this investment is not in question.
-- The technical approach (BigQuery + Fivetran + Dataform + Looker) is proven at this scale and well within Rittman Analytics' core competency.
-- All 18 data source connections are established technologies (16 via standard Fivetran connectors, 2 via Cloud Function + REST API). No novel integration risk.
-- The SOW has been reviewed and signed; stakeholders are engaged and available. Discovery sessions with all four workstream sponsors are complete.
-- The phased delivery structure means value is delivered incrementally — Foundation complete in Week 4, first analytics dashboards in Weeks 15–17 — rather than in a single big-bang delivery.
-
----
-
-## 10. Metrics for Success
-
-| Metric | Target | Measurement |
+| Release | Scope | Key Outputs |
 |---|---|---|
-| Pipeline data quality | All Dataform assertions pass for 3 consecutive daily runs; Fivetran < 0.1% error rate over 7 days | Automated assertions + Fivetran monitoring |
-| Metric reconciliation | MRR/NRR/CAC variance between functions reduced to ≤ 2% | Stakeholder sign-off on Metric Definitions document |
-| Churn model performance | AUC-ROC ≥ 0.75; precision ≥ 60% at 0.5 threshold | BigQuery ML evaluation metrics on held-out test set |
-| Dashboard adoption | All 4 workstream sponsors actively using dashboards by Week 22 | Looker usage analytics |
-| Analyst time reclaimed | James Petit spends < 20% of time on manual data work (from ~60%) | Self-reported at knowledge transfer session |
-| QBR prep time | CSM QBR prep time < 1 hour per account (from 3–5 hours) | Self-reported by CSMs at UAT session |
-| NRR trajectory | Board receives single, agreed NRR figure at next board meeting post-engagement | [To confirm with client — NRR target is 18-month horizon] |
+| 02-foundation | Pipeline only | GCP setup, 18 Fivetran/custom connectors, Dataform staging (all sources), Cloud Composer DAGs, data quality assertions |
+| 03-marketing-analytics | Full platform | Marketing Dataform models, 5-model multi-touch attribution, LookML, 3 dashboards (Campaign Performance, Attribution Comparison, Pipeline Influence) |
+| 04-product-analytics | Full platform | Product Dataform models, engagement score, onboarding funnel, LookML, 3 dashboards (Feature Adoption, Account Health Score, Onboarding Funnel) |
+| 05-customer-analytics | Full platform | Customer 360, BigQuery ML churn model, LookML with RLS, 3 dashboards + Looker Alerts + QBR Action |
+| 06-operational-analytics | dbt development | Support SLA, GCP cost, incident metrics, 3 dashboards (SLA Tracker, Infrastructure Cost, Incident Response) |
+| 07-semantic-layer-governance | Dashboard extension | Semantic layer audit, governance guide, 3 KT sessions, final UAT |
+
+### Key Design Decisions
+
+- **ELT over ETL** — BigQuery processing is cheap; raw data retention enables re-transformation without re-extraction
+- **Dataform over dbt** — team has deep Dataform expertise; native GCP integration simplifies DevOps
+- **Cloud Composer 2 over Cloud Workflows** — Airflow provides mature dependency management; Amara Diallo's team has existing Airflow familiarity
+- **BambooHR column blocklist** — salary and personal data excluded at Fivetran layer; proactive data minimisation
+- **PII pseudonymisation at staging** — CoreFM `user_id` SHA-256 hashed at staging; email/name columns blocked before they enter the warehouse
+- **U-shaped attribution as default** — per Rachel Summers' explicit requirement; 180-day attribution window
 
 ---
 
-*Document status: Generated by Wire Autopilot — self-reviewed and approved*
+## 4. Rabbit Holes
+
+These are known risks with contained, agreed mitigations. They are not unknowns — they are documented and managed.
+
+### R1: ChurnZero history gap (14 months vs 24 months required for BQML)
+**Risk**: The churn model needs 24 months of renewal outcome data. ChurnZero only has 14 months.
+**Mitigation**: Use Salesforce opportunity history as a proxy for the pre-ChurnZero period. This must be accepted by Tara Obinna before the model is built (open question R-03).
+**Constraint**: Model precision may be slightly lower than the ≥ 60% target. If Salesforce proxy data proves insufficient, we can relax the precision target or extend the observation window — but we cannot go outside scope to source additional historical data.
+
+### R2: 12% HubSpot–Salesforce contact mismatch
+**Risk**: 12% of marketing journeys have no Salesforce counterpart, making them invisible to attribution.
+**Mitigation**: Document the coverage gap explicitly in the Marketing Analytics dashboard. Attribution model results will carry a "12% coverage gap" disclaimer until Core Dynamics resolves the deduplication (client responsibility per R-01).
+**Constraint**: We will not perform data cleanup in Salesforce or HubSpot — that is explicitly out of scope.
+
+### R3: Segment + Mixpanel double-counting
+**Risk**: The same product events may appear in both Segment (streaming to BigQuery) and Mixpanel (via Fivetran). Double-counting inflates usage metrics.
+**Mitigation**: Build an `int__product_events__deduplicated` integration model in Release 04. Leon Yip must provide the event-to-source mapping before this model is built. If the mapping is delayed, Release 04 ships with a documented deduplication caveat.
+**Constraint**: We will not modify the Segment or Mixpanel configurations in the source systems.
+
+### R4: NetSuite provisioning lead time (2–3 weeks)
+**Risk**: The NetSuite integration role can take 2–3 weeks to provision. If delayed past Week 4, NetSuite data will not be available for Phase 2.
+**Mitigation**: Start NetSuite provisioning request in Week 1. If delayed, Release 02 ships with NetSuite connector in "pending" state. Financial metrics that require NetSuite will be flagged as incomplete until the connector goes live.
+**Constraint**: No workaround for NetSuite data — it must be provisioned by Core Dynamics.
+
+### R5: CoreFM PostgreSQL network access
+**Risk**: The Cloud SQL Auth Proxy for CoreFM PostgreSQL CDC has not yet been provisioned. Without it, product usage data cannot be ingested.
+**Mitigation**: Provisioning is a Week 1 dependency. Amara Diallo's team owns this. If delayed, Release 02 ships with the CoreFM connector staged but inactive.
+**Constraint**: Legal sign-off from Diane Hooper is also required before CoreFM staging models go live (separate dependency). Both must be resolved before product usage data enters the warehouse.
+
+### R6: GCP Billing label coverage
+**Risk**: Sean Murphy's GCP cost labels are inconsistently applied across projects. Without consistent labels, per-customer infrastructure cost allocation is inaccurate.
+**Mitigation**: Sean Murphy must complete a label coverage audit before Release 06. If < 80% coverage, the Infrastructure Cost dashboard ships with a "partial allocation" disclaimer.
+**Constraint**: We will not retroactively re-tag GCP resources — that is client responsibility.
+
+---
+
+## 5. No-Gos
+
+These are explicitly out of scope. They will not be built regardless of client request. Any work in these areas is billable at $2,200/day against the out-of-scope rate.
+
+| No-Go | Reason |
+|---|---|
+| Real-time streaming dashboards (sub-minute latency) | SOW Section 10. Segment streaming to BigQuery is ~15-minute latency — sufficient for all use cases identified. |
+| Data catalogue / data discovery tooling | SOW Section 10. Out of scope and not required for the NRR mandate. |
+| Predictive models beyond churn risk | SOW Section 10. Expansion propensity, LTV prediction, lead scoring are future phases. |
+| Source system configuration changes | SOW Section 10. We read from source systems; we do not modify them. |
+| GDPR/CCPA compliance review | SOW Section 10. We implement pseudonymisation as specified; legal review is Core Dynamics' responsibility. |
+| Mobile or embedded analytics | SOW Section 10. Looker web app only. |
+| Ongoing managed service | SOW Section 10. Engagement ends with 3 KT sessions and a runbook. |
+| Salesforce data cleanup | Discovery. Client responsibility (R-01). |
+| Retroactive UTM parameter remediation | Discovery. Niamh Collins to address going forward (R-04). |
+
+---
+
+## 6. How We Know It Worked
+
+The engagement is a success when these conditions are verifiably met:
+
+| Signal | Measurement |
+|---|---|
+| MRR discrepancy eliminated | Single Looker definition returns same figure as Finance + CS + Sales reports; ±2% tolerance |
+| James Petit's time freed | Self-reported < 20% of time on manual data work (vs 60% today) |
+| Churn model live and performant | BQML model in production; AUC-ROC ≥ 0.75; precision ≥ 60% at 0.5 threshold |
+| Multi-touch attribution visible | 5 models selectable in Looker; U-shaped default; LinkedIn/Meta visible in closed-won journeys |
+| Product usage self-service | CS team can filter Looker by account/feature without engineering support |
+| SLA visibility intraday | SLA dashboard refreshes every 4 hours; no end-of-day surprises |
+| QBR prep < 1 hour | One-click Looker Action generates Google Slides deck in < 5 minutes |
+| Pipeline reliability | Fivetran connectors < 0.1% error rate; Dataform assertions passing daily |
+
+---
+
+*Document status: Generated by Wire Autopilot — validated and self-approved*
 *Reviewed by: Wire Autopilot (self-review)*
-*Date: 2026-03-29*
+*Review date: 2026-03-29*

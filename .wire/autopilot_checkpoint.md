@@ -38,9 +38,10 @@ Core Dynamics, Inc. is a Series C B2B SaaS company ($38.4M ARR, 312 enterprise a
 
 ## Completed Phases
 - engagement_setup: complete
+- discovery_sprint: complete
 
 ## Current Phase
-discovery_sprint: complete
+02-foundation: ready_to_start
 
 ## Delivery Releases to Execute
 | Release | Type | Scope |
