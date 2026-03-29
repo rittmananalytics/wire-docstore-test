@@ -97,23 +97,39 @@ linear:
   project_url: https://linear.app/rittman-analytics/project/ra-autopilot-test-0e3a53c420f5
   artifacts:
     problem_definition:
-      issue_id: RIT-129
-      generate_id: RIT-133
-      validate_id: RIT-134
-      review_id: RIT-135
+      issue_id: RIT-159
+      issue_identifier: RIT-159
+      generate_id: RIT-163
+      generate_identifier: RIT-163
+      validate_id: RIT-164
+      validate_identifier: RIT-164
+      review_id: RIT-165
+      review_identifier: RIT-165
     pitch:
-      issue_id: RIT-130
-      generate_id: RIT-136
-      validate_id: RIT-137
-      review_id: RIT-138
+      issue_id: RIT-160
+      issue_identifier: RIT-160
+      generate_id: RIT-166
+      generate_identifier: RIT-166
+      validate_id: RIT-167
+      validate_identifier: RIT-167
+      review_id: RIT-168
+      review_identifier: RIT-168
     release_brief:
-      issue_id: RIT-131
-      generate_id: RIT-139
-      validate_id: RIT-140
-      review_id: RIT-141
+      issue_id: RIT-161
+      issue_identifier: RIT-161
+      generate_id: RIT-169
+      generate_identifier: RIT-169
+      validate_id: RIT-170
+      validate_identifier: RIT-170
+      review_id: RIT-171
+      review_identifier: RIT-171
     sprint_plan:
-      issue_id: RIT-132
-      generate_id: RIT-142
-      validate_id: RIT-143
-      review_id: RIT-144
+      issue_id: RIT-162
+      issue_identifier: RIT-162
+      generate_id: RIT-172
+      generate_identifier: RIT-172
+      validate_id: RIT-173
+      validate_identifier: RIT-173
+      review_id: RIT-174
+      review_identifier: RIT-174
 ```

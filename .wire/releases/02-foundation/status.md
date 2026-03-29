@@ -75,20 +75,50 @@ linear:
   project_url: https://linear.app/rittman-analytics/project/ra-autopilot-test-0e3a53c420f5
   artifacts:
     requirements:
-      issue_id: RIT-145
-      issue_url: https://linear.app/rittman-analytics/issue/RIT-145
+      issue_id: RIT-175
+      issue_identifier: RIT-175
+      generate_id: RIT-195
+      generate_identifier: RIT-195
+      validate_id: RIT-196
+      validate_identifier: RIT-196
+      review_id: RIT-197
+      review_identifier: RIT-197
     pipeline_design:
-      issue_id: RIT-146
-      issue_url: https://linear.app/rittman-analytics/issue/RIT-146
+      issue_id: RIT-176
+      issue_identifier: RIT-176
+      generate_id: RIT-198
+      generate_identifier: RIT-198
+      validate_id: RIT-199
+      validate_identifier: RIT-199
+      review_id: RIT-200
+      review_identifier: RIT-200
     pipeline:
-      issue_id: RIT-147
-      issue_url: https://linear.app/rittman-analytics/issue/RIT-147
+      issue_id: RIT-177
+      issue_identifier: RIT-177
+      generate_id: RIT-201
+      generate_identifier: RIT-201
+      validate_id: RIT-202
+      validate_identifier: RIT-202
+      review_id: RIT-203
+      review_identifier: RIT-203
     data_quality:
-      issue_id: RIT-148
-      issue_url: https://linear.app/rittman-analytics/issue/RIT-148
+      issue_id: RIT-178
+      issue_identifier: RIT-178
+      generate_id: RIT-204
+      generate_identifier: RIT-204
+      validate_id: RIT-205
+      validate_identifier: RIT-205
+      review_id: RIT-206
+      review_identifier: RIT-206
     deployment:
-      issue_id: RIT-149
-      issue_url: https://linear.app/rittman-analytics/issue/RIT-149
+      issue_id: RIT-179
+      issue_identifier: RIT-179
+      generate_id: RIT-207
+      generate_identifier: RIT-207
+      validate_id: RIT-208
+      validate_identifier: RIT-208
+      review_id: RIT-209
+      review_identifier: RIT-209
 ```
 
 ## Document Store
